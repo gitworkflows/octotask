@@ -9,7 +9,7 @@ export interface VercelUser {
 
 export interface VercelProject {
   createdAt: string | number | Date;
-  targets: Record<string, unknown>;
+  targets: any;
   id: string;
   name: string;
   framework?: string;

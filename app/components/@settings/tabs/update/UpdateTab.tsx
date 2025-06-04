@@ -79,10 +79,7 @@ const UpdateProgressDisplay = ({ progress }: { progress: UpdateProgress }) => (
                       {filesOfType.map((file, index) => {
                         const fileName = file.split(': ')[1];
                         return (
-                          <div
-                            key={index}
-                            className="text-sm text-octotask-elements-textSecondary flex items-center gap-2"
-                          >
+                          <div key={index} className="text-sm text-octotask-elements-textSecondary flex items-center gap-2">
                             <div
                               className={classNames('w-4 h-4', {
                                 'i-ph:pencil-simple': type === 'Modified',
@@ -341,9 +338,7 @@ const UpdateTab = () => {
           <div className="flex items-center justify-between">
             <div>
               <span className="text-sm text-octotask-elements-textPrimary">In-App Notifications</span>
-              <p className="text-xs text-octotask-elements-textSecondary">
-                Show notifications when updates are available
-              </p>
+              <p className="text-xs text-octotask-elements-textSecondary">Show notifications when updates are available</p>
             </div>
             <button
               onClick={() => setUpdateSettings((prev) => ({ ...prev, notifyInApp: !prev.notifyInApp }))}
@@ -460,7 +455,7 @@ const UpdateTab = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p>
-                  Updates are fetched from: <span className="font-mono">octotask/octotask</span> (
+                  Updates are fetched from: <span className="font-mono">stackblitz-labs/octotask.diy</span> (
                   {isLatestBranch ? 'main' : 'stable'} branch)
                 </p>
                 <p className="mt-1">
@@ -558,7 +553,7 @@ const UpdateTab = () => {
           <DialogDescription>
             <div className="mt-4">
               <p className="text-sm text-octotask-elements-textSecondary mb-4">
-                A new version is available from <span className="font-mono">octotask/octotask</span> (
+                A new version is available from <span className="font-mono">stackblitz-labs/octotask.diy</span> (
                 {isLatestBranch ? 'main' : 'stable'} branch)
               </p>
 

@@ -805,9 +805,7 @@ export default function GitHubConnection() {
                   <div className="mt-4">
                     <div className="space-y-4">
                       <div>
-                        <h5 className="text-sm font-medium text-octotask-elements-textPrimary mb-2">
-                          Repository Stats
-                        </h5>
+                        <h5 className="text-sm font-medium text-octotask-elements-textPrimary mb-2">Repository Stats</h5>
                         <div className="grid grid-cols-2 gap-4">
                           {[
                             {
@@ -824,18 +822,14 @@ export default function GitHubConnection() {
                               className="flex flex-col p-3 rounded-lg bg-octotask-elements-background-depth-2 dark:bg-octotask-elements-background-depth-2 border border-octotask-elements-borderColor dark:border-octotask-elements-borderColor"
                             >
                               <span className="text-xs text-octotask-elements-textSecondary">{stat.label}</span>
-                              <span className="text-lg font-medium text-octotask-elements-textPrimary">
-                                {stat.value}
-                              </span>
+                              <span className="text-lg font-medium text-octotask-elements-textPrimary">{stat.value}</span>
                             </div>
                           ))}
                         </div>
                       </div>
 
                       <div>
-                        <h5 className="text-sm font-medium text-octotask-elements-textPrimary mb-2">
-                          Contribution Stats
-                        </h5>
+                        <h5 className="text-sm font-medium text-octotask-elements-textPrimary mb-2">Contribution Stats</h5>
                         <div className="grid grid-cols-3 gap-4">
                           {[
                             {
@@ -889,9 +883,7 @@ export default function GitHubConnection() {
                               className="flex flex-col p-3 rounded-lg bg-octotask-elements-background-depth-2 dark:bg-octotask-elements-background-depth-2 border border-octotask-elements-borderColor dark:border-octotask-elements-borderColor"
                             >
                               <span className="text-xs text-octotask-elements-textSecondary">{stat.label}</span>
-                              <span className="text-lg font-medium text-octotask-elements-textPrimary">
-                                {stat.value}
-                              </span>
+                              <span className="text-lg font-medium text-octotask-elements-textPrimary">{stat.value}</span>
                             </div>
                           ))}
                         </div>

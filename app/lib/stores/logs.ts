@@ -39,10 +39,9 @@ export interface LogEntry {
   };
 }
 
-interface LogDetails {
+interface LogDetails extends Record<string, any> {
   type: string;
   message: string;
-  [key: string]: unknown;
 }
 
 const MAX_LOGS = 1000; // Maximum number of logs to keep in memory

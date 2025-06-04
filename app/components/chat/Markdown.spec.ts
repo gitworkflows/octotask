@@ -39,15 +39,9 @@ describe('stripCodeFenceFromArtifact', () => {
       '```',
     ].join('\n');
 
-    const expected = [
-      'Some text',
-      '',
-      "<div class='__octotaskArtifact__'></div>",
-      '',
-      '```',
-      'regular code',
-      '```',
-    ].join('\n');
+    const expected = ['Some text', '', "<div class='__octotaskArtifact__'></div>", '', '```', 'regular code', '```'].join(
+      '\n',
+    );
 
     expect(stripCodeFenceFromArtifact(input)).toBe(expected);
   });

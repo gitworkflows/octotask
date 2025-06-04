@@ -1,6 +1,6 @@
 /*
  *!---------------------------------------------------------------------------------------------
- *  Copyright (c) octotask. All rights reserved.
+ *  Copyright (c) StackBlitz. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------
  */
@@ -133,6 +133,7 @@ function Content({ children, ...props }: StickToBottomContentProps) {
       <div {...props} ref={context.contentRef}>
         {typeof children === 'function' ? children(context) : children}
       </div>
+      {/* Blur effect overlay */}
     </div>
   );
 }

@@ -43,10 +43,7 @@ describe('StreamingMessageParser', () => {
       ['Foo bar <octotaskA', 'Foo bar '],
       ['Foo bar <octotaskArtifacs></octotaskArtifact>', 'Foo bar <octotaskArtifacs></octotaskArtifact>'],
       ['Before <oltArtfiact>foo</octotaskArtifact> After', 'Before <oltArtfiact>foo</octotaskArtifact> After'],
-      [
-        'Before <octotaskArtifactt>foo</octotaskArtifact> After',
-        'Before <octotaskArtifactt>foo</octotaskArtifact> After',
-      ],
+      ['Before <octotaskArtifactt>foo</octotaskArtifact> After', 'Before <octotaskArtifactt>foo</octotaskArtifact> After'],
     ])('should correctly parse chunks and strip out octotask artifacts (%#)', (input, expected) => {
       runTest(input, expected);
     });

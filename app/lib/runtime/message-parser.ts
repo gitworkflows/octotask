@@ -1,11 +1,4 @@
-import type {
-  ActionType,
-  OctotaskAction,
-  OctotaskActionData,
-  FileAction,
-  ShellAction,
-  SupabaseAction,
-} from '~/types/actions';
+import type { ActionType, OctotaskAction, OctotaskActionData, FileAction, ShellAction, SupabaseAction } from '~/types/actions';
 import type { OctotaskArtifactData } from '~/types/artifact';
 import { createScopedLogger } from '~/utils/logger';
 import { unreachable } from '~/utils/unreachable';
@@ -14,6 +7,8 @@ const ARTIFACT_TAG_OPEN = '<octotaskArtifact';
 const ARTIFACT_TAG_CLOSE = '</octotaskArtifact>';
 const ARTIFACT_ACTION_TAG_OPEN = '<octotaskAction';
 const ARTIFACT_ACTION_TAG_CLOSE = '</octotaskAction>';
+const OCTOTASK_QUICK_ACTIONS_OPEN = '<octotask-quick-actions>';
+const OCTOTASK_QUICK_ACTIONS_CLOSE = '</octotask-quick-actions>';
 
 const logger = createScopedLogger('MessageParser');
 
@@ -100,6 +95,39 @@ export class StreamingMessageParser {
     let earlyBreak = false;
 
     while (i < input.length) {
+      if (input.startsWith(OCTOTASK_QUICK_ACTIONS_OPEN, i)) {
+        console.log('input:', input.slice(i));
+
+        const actionsBlockEnd = input.indexOf(OCTOTASK_QUICK_ACTIONS_CLOSE, i);
+
+        if (actionsBlockEnd !== -1) {
+          const actionsBlockContent = input.slice(i + OCTOTASK_QUICK_ACTIONS_OPEN.length, actionsBlockEnd);
+
+          // Find all <octotask-quick-action ...>label</octotask-quick-action> inside
+          const quickActionRegex = /<octotask-quick-action([^>]*)>([\s\S]*?)<\/octotask-quick-action>/g;
+          let match;
+          const buttons = [];
+
+          while ((match = quickActionRegex.exec(actionsBlockContent)) !== null) {
+            const tagAttrs = match[1];
+            const label = match[2];
+            const type = this.#extractAttribute(tagAttrs, 'type');
+            const message = this.#extractAttribute(tagAttrs, 'message');
+            const path = this.#extractAttribute(tagAttrs, 'path');
+            const href = this.#extractAttribute(tagAttrs, 'href');
+            buttons.push(
+              createQuickActionElement(
+                { type: type || '', message: message || '', path: path || '', href: href || '' },
+                label,
+              ),
+            );
+          }
+          output += createQuickActionGroup(buttons);
+          i = actionsBlockEnd + OCTOTASK_QUICK_ACTIONS_CLOSE.length;
+          continue;
+        }
+      }
+
       if (state.insideArtifact) {
         const currentArtifact = state.currentArtifact;
 
@@ -206,23 +234,18 @@ export class StreamingMessageParser {
         }
       } else if (input[i] === '<' && input[i + 1] !== '/') {
         let j = i;
+        let tagStart = i;
         let potentialTag = '';
+        let processedTag = false;
 
-        while (j < input.length && potentialTag.length < ARTIFACT_TAG_OPEN.length) {
-          potentialTag += input[j];
-
-          if (potentialTag === ARTIFACT_TAG_OPEN) {
-            const nextChar = input[j + 1];
-
-            if (nextChar && nextChar !== '>' && nextChar !== ' ') {
-              output += input.slice(i, j + 1);
-              i = j + 1;
-              break;
-            }
-
-            const openTagEnd = input.indexOf('>', j);
-
-            if (openTagEnd !== -1) {
+        // Check for potential artifact tag start
+        if (input.startsWith(ARTIFACT_TAG_OPEN, i)) {
+          let k = i + ARTIFACT_TAG_OPEN.length;
+          // Scan for the end of the opening artifact tag
+          while (k < input.length) {
+            if (input[k] === '>') {
+              // Found the end of the opening artifact tag
+              const openTagEnd = k;
               const artifactTag = input.slice(i, openTagEnd + 1);
 
               const artifactTitle = this.#extractAttribute(artifactTag, 'title') as string;
@@ -254,23 +277,35 @@ export class StreamingMessageParser {
               output += artifactFactory({ messageId });
 
               i = openTagEnd + 1;
-            } else {
-              earlyBreak = true;
+              processedTag = true;
+              break; // Processed a valid artifact tag, continue outer loop from after the tag
             }
-
-            break;
-          } else if (!ARTIFACT_TAG_OPEN.startsWith(potentialTag)) {
-            output += input.slice(i, j + 1);
-            i = j + 1;
-            break;
+            k++;
           }
-
-          j++;
+          // If loop finishes without finding '<', it's an incomplete tag at the end of input
+          if (!processedTag) {
+             // It was an incomplete artifact tag, discard it.
+             i = input.length;
+             processedTag = true;
+          }
+        } else {
+          // Not an artifact tag start, treat the '<' and following characters as plain text
+          // Find the end of the potential tag (until the next '<' or end of input)
+          while (j < input.length && input[j] !== '<') {
+            j++;
+          }
+          output += input.slice(i, j);
+          i = j;
+          processedTag = true;
         }
 
-        if (j === input.length && ARTIFACT_TAG_OPEN.startsWith(potentialTag)) {
-          break;
+        if (!processedTag) {
+           // This case should ideally not be reached with the current logic, but as a fallback:
+           // Output the single '<' character as plain text and move to the next character.
+           output += input[i];
+           i++;
         }
+
       } else {
         output += input[i];
         i++;
@@ -354,4 +389,20 @@ const createArtifactElement: ElementFactory = (props) => {
 
 function camelToDashCase(input: string) {
   return input.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+}
+
+function createQuickActionElement(props: Record<string, string>, label: string) {
+  const elementProps = [
+    'class="__octotaskQuickAction__"',
+    'data-octotask-quick-action="true"',
+    ...Object.entries(props).map(([key, value]) => `data-${camelToDashCase(key)}=${JSON.stringify(value)}`),
+  ];
+
+  console.log('elementProps', `<button ${elementProps.join(' ')}>${label}</button>`);
+
+  return `<button ${elementProps.join(' ')}>${label}</button>`;
+}
+
+function createQuickActionGroup(buttons: string[]) {
+  return `<div class=\"__octotaskQuickAction__\" data-octotask-quick-action=\"true\">${buttons.join('')}</div>`;
 }
