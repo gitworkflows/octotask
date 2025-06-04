@@ -2,7 +2,7 @@
 
 [![octotask: AI-Powered Full-Stack Web Development in the Browser](./public/social_preview_index.jpg)](https://octotask)
 
-Welcome to octotask, the official open source version of Bolt.new, which allows you to choose the LLM that you use for each prompt! Currently, you can use OpenAI, Anthropic, Ollama, OpenRouter, Gemini, LMStudio, Mistral, xAI, HuggingFace, DeepSeek, or Groq models - and it is easily extended to use any other model supported by the Vercel AI SDK! See the instructions below for running this locally and extending it to include more models.
+Welcome to octotask, the official open source version of Octotask.new, which allows you to choose the LLM that you use for each prompt! Currently, you can use OpenAI, Anthropic, Ollama, OpenRouter, Gemini, LMStudio, Mistral, xAI, HuggingFace, DeepSeek, or Groq models - and it is easily extended to use any other model supported by the Vercel AI SDK! See the instructions below for running this locally and extending it to include more models.
 
 -----
 Check the [octotask Docs](https://octotask.github.io/octotask/) for more offical installation instructions and more informations.
@@ -45,18 +45,18 @@ project, please check the [project management guide](./PROJECT.md) to get starte
 - ✅ Autogenerate Ollama models from what is downloaded (@yunatamos)
 - ✅ Filter models by provider (@jasonm23)
 - ✅ Download project as ZIP (@fabwaseem)
-- ✅ Improvements to the main bolt.new prompt in `app\lib\.server\llm\prompts.ts` (@kofi-bhr)
+- ✅ Improvements to the main octotask.new prompt in `app\lib\.server\llm\prompts.ts` (@kofi-bhr)
 - ✅ DeepSeek API Integration (@zenith110)
 - ✅ Mistral API Integration (@ArulGandhi)
 - ✅ "Open AI Like" API Integration (@ZerxZ)
 - ✅ Ability to sync files (one way sync) to local folder (@muzafferkadir)
-- ✅ Containerize the application with Docker for easy installation (@aaronbolton)
+- ✅ Containerize the application with Docker for easy installation (@aaronoctotaskon)
 - ✅ Publish projects directly to GitHub (@goncaloalves)
 - ✅ Ability to enter API keys in the UI (@ali00209)
 - ✅ xAI Grok Beta Integration (@milutinke)
 - ✅ LM Studio Integration (@karrot0)
 - ✅ HuggingFace Integration (@ahsan3219)
-- ✅ Bolt terminal to see the output of LLM run commands (@thecodacus)
+- ✅ Octotask terminal to see the output of LLM run commands (@thecodacus)
 - ✅ Streaming of code output (@thecodacus)
 - ✅ Ability to revert code to earlier version (@wonderwhy-er)
 - ✅ Chat history backup and restore functionality (@sidbetatester)
@@ -74,13 +74,13 @@ project, please check the [project management guide](./PROJECT.md) to get starte
 - ✅ PromptLibrary to have different variations of prompts for different use cases (@thecodacus)
 - ✅ Detect package.json and commands to auto install & run preview for folder and git import (@wonderwhy-er)
 - ✅ Selection tool to target changes visually (@emcconnell)
-- ✅ Detect terminal Errors and ask bolt to fix it (@thecodacus)
-- ✅ Detect preview Errors and ask bolt to fix it (@wonderwhy-er)
+- ✅ Detect terminal Errors and ask octotask to fix it (@thecodacus)
+- ✅ Detect preview Errors and ask octotask to fix it (@wonderwhy-er)
 - ✅ Add Starter Template Options (@thecodacus)
 - ✅ Perplexity Integration (@meetpateltech)
 - ✅ AWS Bedrock Integration (@kunjabijukchhe)
 - ✅ Add a "Diff View" to see the changes (@toddyclipsgg)
-- ⬜ **HIGH PRIORITY** - Prevent bolt from rewriting files as often (file locking and diffs)
+- ⬜ **HIGH PRIORITY** - Prevent octotask from rewriting files as often (file locking and diffs)
 - ⬜ **HIGH PRIORITY** - Better prompting for smaller LLMs (code window sometimes doesn't start)
 - ⬜ **HIGH PRIORITY** - Run agents in the backend as opposed to a single model call
 - ✅ Deploy directly to Netlify (@xKevIsDev)
@@ -114,7 +114,7 @@ Let's get you up and running with the stable version of OctoTASK!
 
 ## Quick Download
 
-[![Download Latest Release](https://img.shields.io/github/v/release/octotask/octotask?label=Download%20Bolt&sort=semver)](https://github.com/octotask/octotask/releases/latest) ← Click here to go the the latest release version!
+[![Download Latest Release](https://img.shields.io/github/v/release/octotask/octotask?label=Download%20Octotask&sort=semver)](https://github.com/octotask/octotask/releases/latest) ← Click here to go the the latest release version!
 
 - Next **click source.zip**
 
@@ -184,7 +184,7 @@ This option requires some familiarity with Docker but provides a more isolated e
    npm run dockerbuild
 
    # OR using direct Docker command:
-   docker build . --target bolt-ai-development
+   docker build . --target octotask-ai-development
    ```
 
 2. **Run the Container**:
@@ -210,7 +210,7 @@ Setting up your API keys in OctoTASK is straightforward:
 For providers that support custom base URLs (such as Ollama or LM Studio), follow these steps:
 
 1. Click the settings icon in the sidebar to open the settings menu
-   ![Settings Button Location](./docs/images/bolt-settings-button.png)
+   ![Settings Button Location](./docs/images/octotask-settings-button.png)
 
 2. Navigate to the "Providers" tab
 3. Search for your provider using the search bar
