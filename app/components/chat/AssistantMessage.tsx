@@ -1,164 +1,155 @@
-import { memo, Fragment } from 'react';
-import { Markdown } from './Markdown';
-import type { JSONValue } from 'ai';
-import Popover from '~/components/ui/Popover';
-import { workbenchStore } from '~/lib/stores/workbench';
-import { WORK_DIR } from '~/utils/constants';
-import WithTooltip from '~/components/ui/Tooltip';
-import type { Message } from 'ai';
-import type { ProviderInfo } from '~/types/model';
+import { createToolSet, type ToolSet } from './toolset';
+import { createScopedLogger } from '~/utils/logger';
+import type { MCPConfig, MCPServerConfig } from './config';
 
-interface AssistantMessageProps {
-  content: string;
-  annotations?: JSONValue[];
-  messageId?: string;
-  onRewind?: (messageId: string) => void;
-  onFork?: (messageId: string) => void;
-  append?: (message: Message) => void;
-  chatMode?: 'discuss' | 'build';
-  setChatMode?: (mode: 'discuss' | 'build') => void;
-  model?: string;
-  provider?: ProviderInfo;
-}
+const logger = createScopedLogger('MCPManager');
 
-function openArtifactInWorkbench(filePath: string) {
-  filePath = normalizedFilePath(filePath);
+/**
+ * MCP Manager Class
+ * Central management of MCP-related functionality (configuration, toolset)
+ */
+export class MCPManager {
+  private static _instance: MCPManager;
+  private _toolset: ToolSet | null = null;
+  private _config: MCPConfig = { mcpServers: {} };
+  private _initialized: boolean = false;
 
-  if (workbenchStore.currentView.get() !== 'code') {
-    workbenchStore.currentView.set('code');
+  private constructor(private readonly _env: Record<string, string | undefined> = {}) {
+    this._loadConfigFromEnvironment();
   }
 
-  workbenchStore.setSelectedFile(`${WORK_DIR}/${filePath}`);
-}
+  /**
+   * Returns MCPManager instance with initialized tools
+   * Works in both Cloudflare and local development environments
+   * @param contextOrEnv Cloudflare context object or environment variables object
+   */
+  static async getInstance(contextOrEnv?: any): Promise<MCPManager> {
+    // Handle different types of inputs and extract environment variables
+    let envVars: Record<string, string | undefined> = {};
 
-function normalizedFilePath(path: string) {
-  let normalizedPath = path;
-
-  if (normalizedPath.startsWith(WORK_DIR)) {
-    normalizedPath = path.replace(WORK_DIR, '');
-  }
-
-  if (normalizedPath.startsWith('/')) {
-    normalizedPath = normalizedPath.slice(1);
-  }
-
-  return normalizedPath;
-}
-
-export const AssistantMessage = memo(
-  ({
-    content,
-    annotations,
-    messageId,
-    onRewind,
-    onFork,
-    append,
-    chatMode,
-    setChatMode,
-    model,
-    provider,
-  }: AssistantMessageProps) => {
-    const filteredAnnotations = (annotations?.filter(
-      (annotation: JSONValue) =>
-        annotation && typeof annotation === 'object' && Object.keys(annotation).includes('type'),
-    ) || []) as { type: string; value: any } & { [key: string]: any }[];
-
-    let chatSummary: string | undefined = undefined;
-
-    if (filteredAnnotations.find((annotation) => annotation.type === 'chatSummary')) {
-      chatSummary = filteredAnnotations.find((annotation) => annotation.type === 'chatSummary')?.summary;
+    if (contextOrEnv) {
+      if (contextOrEnv.cloudflare?.env) {
+        // If Cloudflare context is provided, extract env from it
+        envVars = contextOrEnv.cloudflare.env as unknown as Record<string, string | undefined>;
+      } else if (typeof contextOrEnv === 'object') {
+        // If direct env object is provided
+        envVars = contextOrEnv;
+      }
     }
 
-    let codeContext: string[] | undefined = undefined;
-
-    if (filteredAnnotations.find((annotation) => annotation.type === 'codeContext')) {
-      codeContext = filteredAnnotations.find((annotation) => annotation.type === 'codeContext')?.files;
+    // Fallback to process.env in Node.js environments
+    if (Object.keys(envVars).length === 0 && typeof process !== 'undefined') {
+      envVars = process.env;
     }
 
-    const usage: {
-      completionTokens: number;
-      promptTokens: number;
-      totalTokens: number;
-    } = filteredAnnotations.find((annotation) => annotation.type === 'usage')?.value;
+    if (!MCPManager._instance) {
+      MCPManager._instance = new MCPManager(envVars);
+    }
 
-    return (
-      <div className="overflow-hidden w-full">
-        <>
-          <div className=" flex gap-2 items-center text-sm text-octotask-elements-textSecondary mb-2">
-            {(codeContext || chatSummary) && (
-              <Popover side="right" align="start" trigger={<div className="i-ph:info" />}>
-                {chatSummary && (
-                  <div className="max-w-chat">
-                    <div className="summary max-h-96 flex flex-col">
-                      <h2 className="border border-octotask-elements-borderColor rounded-md p4">Summary</h2>
-                      <div style={{ zoom: 0.7 }} className="overflow-y-auto m4">
-                        <Markdown>{chatSummary}</Markdown>
-                      </div>
-                    </div>
-                    {codeContext && (
-                      <div className="code-context flex flex-col p4 border border-octotask-elements-borderColor rounded-md">
-                        <h2>Context</h2>
-                        <div className="flex gap-4 mt-4 octotask" style={{ zoom: 0.6 }}>
-                          {codeContext.map((x) => {
-                            const normalized = normalizedFilePath(x);
-                            return (
-                              <Fragment key={normalized}>
-                                <code
-                                  className="bg-octotask-elements-artifacts-inlineCode-background text-octotask-elements-artifacts-inlineCode-text px-1.5 py-1 rounded-md text-octotask-elements-item-contentAccent hover:underline cursor-pointer"
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    openArtifactInWorkbench(normalized);
-                                  }}
-                                >
-                                  {normalized}
-                                </code>
-                              </Fragment>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-                <div className="context"></div>
-              </Popover>
-            )}
-            <div className="flex w-full items-center justify-between">
-              {usage && (
-                <div>
-                  Tokens: {usage.totalTokens} (prompt: {usage.promptTokens}, completion: {usage.completionTokens})
-                </div>
-              )}
-              {(onRewind || onFork) && messageId && (
-                <div className="flex gap-2 flex-col lg:flex-row ml-auto">
-                  {onRewind && (
-                    <WithTooltip tooltip="Revert to this message">
-                      <button
-                        onClick={() => onRewind(messageId)}
-                        key="i-ph:arrow-u-up-left"
-                        className="i-ph:arrow-u-up-left text-xl text-octotask-elements-textSecondary hover:text-octotask-elements-textPrimary transition-colors"
-                      />
-                    </WithTooltip>
-                  )}
-                  {onFork && (
-                    <WithTooltip tooltip="Fork chat from this message">
-                      <button
-                        onClick={() => onFork(messageId)}
-                        key="i-ph:git-fork"
-                        className="i-ph:git-fork text-xl text-octotask-elements-textSecondary hover:text-octotask-elements-textPrimary transition-colors"
-                      />
-                    </WithTooltip>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-        </>
-        <Markdown append={append} chatMode={chatMode} setChatMode={setChatMode} model={model} provider={provider} html>
-          {content}
-        </Markdown>
-      </div>
-    );
-  },
-);
+    if (!MCPManager._instance._initialized) {
+      await MCPManager._instance.initializeTools();
+    }
+
+    return MCPManager._instance;
+  }
+
+  /**
+   * Load MCP server configuration from environment variables
+   * Finds environment variables with MCP_SSE_ prefix and converts them to server settings
+   * Example: MCP_SSE_TEST=http://localhost:3001/sse -> Sets baseUrl for 'test' server
+   */
+  private _loadConfigFromEnvironment(): void {
+    const mcpServers: Record<string, MCPServerConfig> = {};
+    const MCP_PREFIX = 'MCP_SSE_';
+
+    // Iterate through all environment variables
+    for (const [key, value] of Object.entries(this._env)) {
+      // Look for environment variables with MCP_SSE_ prefix
+      if (key.startsWith(MCP_PREFIX)) {
+        // Extract server name (convert to lowercase for consistency)
+        const serverName = key.slice(MCP_PREFIX.length).toLowerCase();
+
+        if (serverName && value) {
+          mcpServers[serverName] = {
+            baseUrl: value,
+          };
+        }
+      }
+    }
+
+    this._config = { mcpServers };
+  }
+
+  /**
+   * Returns current loaded MCP configuration
+   */
+  getConfig(): MCPConfig {
+    return this._config;
+  }
+
+  /**
+   * Returns configuration for a specific server
+   * @param serverName Server name
+   */
+  getServerConfig(serverName: string): MCPServerConfig | undefined {
+    return this._config.mcpServers[serverName];
+  }
+
+  /**
+   * Returns list of all server names
+   */
+  getAllServerNames(): string[] {
+    return Object.keys(this._config.mcpServers);
+  }
+
+  /**
+   * Initialize MCP toolset
+   * Converts MCP servers to AI SDK tools
+   */
+  async initializeTools(): Promise<Record<string, any>> {
+    if (this._initialized) {
+      logger.info('MCP toolset already initialized');
+      return this.tools;
+    }
+
+    try {
+      // Create ToolSetConfig based on MCP server settings
+      const toolSetConfig = {
+        mcpServers: Object.entries(this._config.mcpServers).reduce(
+          (acc, [name, serverConfig]) => {
+            acc[name] = {
+              baseUrl: serverConfig.baseUrl,
+            };
+            return acc;
+          },
+          {} as Record<string, { baseUrl: string }>,
+        ),
+      };
+
+      // Create ToolSet
+      const toolset = await createToolSet(toolSetConfig);
+      this._toolset = toolset;
+      this._initialized = true;
+      logger.info(`MCP toolset initialization completed: ${Object.keys(toolset.tools).length} tools loaded`);
+
+      return toolset.tools;
+    } catch (error) {
+      logger.error('MCP toolset initialization error:', error);
+      return {};
+    }
+  }
+
+  /**
+   * Returns MCP toolset
+   */
+  get tools() {
+    return this._toolset?.tools || {};
+  }
+
+  /**
+   * Returns MCP clients
+   */
+  get clients() {
+    return this._toolset?.clients || {};
+  }
+}
