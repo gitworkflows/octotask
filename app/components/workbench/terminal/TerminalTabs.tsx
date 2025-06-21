@@ -116,7 +116,8 @@ export const TerminalTabs = memo(() => {
                         className={classNames(
                           'flex items-center text-sm cursor-pointer gap-1.5 px-3 py-2 h-full whitespace-nowrap rounded-full',
                           {
-                            'bg-octotask-elements-terminals-buttonBackground text-octotask-elements-textPrimary': isActive,
+                            'bg-octotask-elements-terminals-buttonBackground text-octotask-elements-textPrimary':
+                              isActive,
                             'bg-octotask-elements-background-depth-2 text-octotask-elements-textSecondary hover:bg-octotask-elements-terminals-buttonBackground':
                               !isActive,
                           },

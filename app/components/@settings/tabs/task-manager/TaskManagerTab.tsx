@@ -1480,7 +1480,9 @@ const TaskManagerTab: React.FC = () => {
               <div className="flex items-center justify-between">
                 <span className="text-sm text-octotask-elements-textSecondary">Status</span>
                 <div className="flex items-center gap-2">
-                  {metrics.battery.charging && <div className="i-ph:lightning-fill w-4 h-4 text-octotask-action-primary" />}
+                  {metrics.battery.charging && (
+                    <div className="i-ph:lightning-fill w-4 h-4 text-octotask-action-primary" />
+                  )}
                   <span
                     className={classNames(
                       'text-sm font-medium',

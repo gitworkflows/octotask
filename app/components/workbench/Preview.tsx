@@ -743,7 +743,9 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
             icon="i-ph:cursor-click"
             onClick={toggleInspectorMode}
             className={
-              isInspectorMode ? 'bg-octotask-elements-background-depth-3 !text-octotask-elements-item-contentAccent' : ''
+              isInspectorMode
+                ? 'bg-octotask-elements-background-depth-3 !text-octotask-elements-item-contentAccent'
+                : ''
             }
             title={isInspectorMode ? 'Disable Element Inspector' : 'Enable Element Inspector'}
           />

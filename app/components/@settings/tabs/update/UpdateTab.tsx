@@ -79,7 +79,10 @@ const UpdateProgressDisplay = ({ progress }: { progress: UpdateProgress }) => (
                       {filesOfType.map((file, index) => {
                         const fileName = file.split(': ')[1];
                         return (
-                          <div key={index} className="text-sm text-octotask-elements-textSecondary flex items-center gap-2">
+                          <div
+                            key={index}
+                            className="text-sm text-octotask-elements-textSecondary flex items-center gap-2"
+                          >
                             <div
                               className={classNames('w-4 h-4', {
                                 'i-ph:pencil-simple': type === 'Modified',
@@ -338,7 +341,9 @@ const UpdateTab = () => {
           <div className="flex items-center justify-between">
             <div>
               <span className="text-sm text-octotask-elements-textPrimary">In-App Notifications</span>
-              <p className="text-xs text-octotask-elements-textSecondary">Show notifications when updates are available</p>
+              <p className="text-xs text-octotask-elements-textSecondary">
+                Show notifications when updates are available
+              </p>
             </div>
             <button
               onClick={() => setUpdateSettings((prev) => ({ ...prev, notifyInApp: !prev.notifyInApp }))}

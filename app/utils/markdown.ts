@@ -86,7 +86,13 @@ const rehypeSanitizeOptions: RehypeSanitizeOptions = {
     div: [
       ...(defaultSchema.attributes?.div ?? []),
       'data*',
-      ['className', '__octotaskArtifact__', '__octotaskThought__', '__octotaskQuickAction', '__octotaskSelectedElement__'],
+      [
+        'className',
+        '__octotaskArtifact__',
+        '__octotaskThought__',
+        '__octotaskQuickAction',
+        '__octotaskSelectedElement__',
+      ],
 
       // ['className', '__octotaskThought__']
     ],

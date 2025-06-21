@@ -1,4 +1,11 @@
-import type { ActionType, OctotaskAction, OctotaskActionData, FileAction, ShellAction, SupabaseAction } from '~/types/actions';
+import type {
+  ActionType,
+  OctotaskAction,
+  OctotaskActionData,
+  FileAction,
+  ShellAction,
+  SupabaseAction,
+} from '~/types/actions';
 import type { OctotaskArtifactData } from '~/types/artifact';
 import { createScopedLogger } from '~/utils/logger';
 import { unreachable } from '~/utils/unreachable';
@@ -92,7 +99,7 @@ export class StreamingMessageParser {
 
     let output = '';
     let i = state.position;
-    let earlyBreak = false;
+    const earlyBreak = false;
 
     while (i < input.length) {
       if (input.startsWith(OCTOTASK_QUICK_ACTIONS_OPEN, i)) {
@@ -234,13 +241,12 @@ export class StreamingMessageParser {
         }
       } else if (input[i] === '<' && input[i + 1] !== '/') {
         let j = i;
-        let tagStart = i;
-        let potentialTag = '';
         let processedTag = false;
 
         // Check for potential artifact tag start
         if (input.startsWith(ARTIFACT_TAG_OPEN, i)) {
           let k = i + ARTIFACT_TAG_OPEN.length;
+
           // Scan for the end of the opening artifact tag
           while (k < input.length) {
             if (input[k] === '>') {
@@ -280,17 +286,21 @@ export class StreamingMessageParser {
               processedTag = true;
               break; // Processed a valid artifact tag, continue outer loop from after the tag
             }
+
             k++;
           }
+
           // If loop finishes without finding '<', it's an incomplete tag at the end of input
           if (!processedTag) {
-             // It was an incomplete artifact tag, discard it.
-             i = input.length;
-             processedTag = true;
+            // It was an incomplete artifact tag, discard it.
+            i = input.length;
+            processedTag = true;
           }
         } else {
-          // Not an artifact tag start, treat the '<' and following characters as plain text
-          // Find the end of the potential tag (until the next '<' or end of input)
+          /*
+           * Not an artifact tag start, treat the '<' and following characters as plain text
+           * Find the end of the potential tag (until the next '<' or end of input)
+           */
           while (j < input.length && input[j] !== '<') {
             j++;
           }
@@ -300,12 +310,13 @@ export class StreamingMessageParser {
         }
 
         if (!processedTag) {
-           // This case should ideally not be reached with the current logic, but as a fallback:
-           // Output the single '<' character as plain text and move to the next character.
-           output += input[i];
-           i++;
+          /*
+           * This case should ideally not be reached with the current logic, but as a fallback:
+           * Output the single '<' character as plain text and move to the next character.
+           */
+          output += input[i];
+          i++;
         }
-
       } else {
         output += input[i];
         i++;

@@ -139,7 +139,9 @@ export const ColorSchemeDialog: React.FC<ColorSchemeDialogProps> = ({ setDesignS
             <div className="text-center space-y-2">
               <div
                 className={`text-2xl font-medium transition-colors ${
-                  font.includes(f.key) ? 'text-octotask-elements-item-contentAccent' : 'text-octotask-elements-textPrimary'
+                  font.includes(f.key)
+                    ? 'text-octotask-elements-item-contentAccent'
+                    : 'text-octotask-elements-textPrimary'
                 }`}
                 style={{ fontFamily: f.key }}
               >
@@ -147,7 +149,9 @@ export const ColorSchemeDialog: React.FC<ColorSchemeDialogProps> = ({ setDesignS
               </div>
               <div
                 className={`text-sm font-medium transition-colors ${
-                  font.includes(f.key) ? 'text-octotask-elements-item-contentAccent' : 'text-octotask-elements-textSecondary'
+                  font.includes(f.key)
+                    ? 'text-octotask-elements-item-contentAccent'
+                    : 'text-octotask-elements-textSecondary'
                 }`}
               >
                 {f.label}

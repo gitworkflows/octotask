@@ -408,7 +408,9 @@ export default function LocalProvidersTab() {
               <div className="flex items-center gap-2">
                 <h2 className="text-lg font-semibold text-octotask-elements-textPrimary">Local AI Models</h2>
               </div>
-              <p className="text-sm text-octotask-elements-textSecondary">Configure and manage your local AI providers</p>
+              <p className="text-sm text-octotask-elements-textSecondary">
+                Configure and manage your local AI providers
+              </p>
             </div>
           </div>
 

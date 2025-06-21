@@ -7,7 +7,8 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: 'bg-octotask-elements-background text-octotask-elements-textPrimary hover:bg-octotask-elements-background-depth-2',
+        default:
+          'bg-octotask-elements-background text-octotask-elements-textPrimary hover:bg-octotask-elements-background-depth-2',
         destructive: 'bg-red-500 text-white hover:bg-red-600',
         outline:
           'border border-octotask-elements-borderColor bg-transparent hover:bg-octotask-elements-background-depth-2 hover:text-octotask-elements-textPrimary text-octotask-elements-textPrimary dark:border-octotask-elements-borderColorActive',

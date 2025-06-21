@@ -2,7 +2,7 @@
  * Module for converting MCP servers to AI SDK tools
  */
 
-import { type Tool } from 'ai';
+import { type CoreTool } from 'ai';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
 import { JSONSchemaToZod } from '@dmitryrechkin/json-schema-to-zod';
@@ -21,7 +21,7 @@ export interface ToolSetConfig {
 }
 
 export interface ToolSet {
-  tools: Record<string, Tool>;
+  tools: Record<string, CoreTool<any, any>>;
   clients: Record<string, Client>;
 }
 
@@ -73,7 +73,7 @@ export async function createToolSet(config: ToolSetConfig): Promise<ToolSet> {
         toolset.tools[toolName] = {
           description: tool.description || '',
           parameters: zodSchema, // Use converted Zod schema
-          execute: async (args) => {
+          execute: async (args: any) => {
             const resultPromise = (async () => {
               const result = await client.callTool({
                 name: tool.name,
