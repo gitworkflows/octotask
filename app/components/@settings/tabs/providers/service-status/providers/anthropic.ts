@@ -1,5 +1,5 @@
-import { BaseProviderChecker } from '~/components/@settings/tabs/providers/service-status/base-provider';
-import type { StatusCheckResult } from '~/components/@settings/tabs/providers/service-status/types';
+import { BaseProviderChecker } from '../base-provider';
+import type { StatusCheckResult } from '../types';
 
 export class AnthropicStatusChecker extends BaseProviderChecker {
   async checkStatus(): Promise<StatusCheckResult> {
