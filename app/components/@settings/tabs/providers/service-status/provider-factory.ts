@@ -14,6 +14,23 @@ import { PerplexityStatusChecker } from './providers/perplexity';
 import { TogetherStatusChecker } from './providers/together';
 import { XAIStatusChecker } from './providers/xai';
 
+type CheckerCtor = new (config: ProviderConfig) => BaseProviderChecker;
+
+const providerCheckerMap: Partial<Record<ProviderName, CheckerCtor>> = {
+  AmazonBedrock: AmazonBedrockStatusChecker,
+  Cohere: CohereStatusChecker,
+  Deepseek: DeepseekStatusChecker,
+  Google: GoogleStatusChecker,
+  Groq: GroqStatusChecker,
+  HuggingFace: HuggingFaceStatusChecker,
+  Hyperbolic: HyperbolicStatusChecker,
+  Mistral: MistralStatusChecker,
+  OpenRouter: OpenRouterStatusChecker,
+  Perplexity: PerplexityStatusChecker,
+  Together: TogetherStatusChecker,
+  XAI: XAIStatusChecker,
+};
+
 export class ProviderStatusCheckerFactory {
   private static _providerConfigs: Record<ProviderName, ProviderConfig> = {
     AmazonBedrock: {
@@ -91,51 +108,25 @@ export class ProviderStatusCheckerFactory {
   };
 
   static getChecker(provider: ProviderName): BaseProviderChecker {
-    const config = this._providerConfigs[provider];
+    const config = this._getProviderConfigOrThrow(provider);
+    const Checker = providerCheckerMap[provider];
+    if (Checker) return new Checker(config);
 
-    if (!config) {
-      throw new Error(`No configuration found for provider: ${provider}`);
-    }
+    // Default generic checker
+    return new (class extends BaseProviderChecker {
+      async checkStatus(): Promise<StatusCheckResult> {
+        const endpointStatus = await this.checkEndpoint(this.config.statusUrl);
+        const apiStatus = await this.checkEndpoint(this.config.apiUrl);
 
-    switch (provider) {
-      case 'AmazonBedrock':
-        return new AmazonBedrockStatusChecker(config);
-      case 'Cohere':
-        return new CohereStatusChecker(config);
-      case 'Deepseek':
-        return new DeepseekStatusChecker(config);
-      case 'Google':
-        return new GoogleStatusChecker(config);
-      case 'Groq':
-        return new GroqStatusChecker(config);
-      case 'HuggingFace':
-        return new HuggingFaceStatusChecker(config);
-      case 'Hyperbolic':
-        return new HyperbolicStatusChecker(config);
-      case 'Mistral':
-        return new MistralStatusChecker(config);
-      case 'OpenRouter':
-        return new OpenRouterStatusChecker(config);
-      case 'Perplexity':
-        return new PerplexityStatusChecker(config);
-      case 'Together':
-        return new TogetherStatusChecker(config);
-      case 'XAI':
-        return new XAIStatusChecker(config);
-      default:
-        return new (class extends BaseProviderChecker {
-          async checkStatus(): Promise<StatusCheckResult> {
-            const endpointStatus = await this.checkEndpoint(this.config.statusUrl);
-            const apiStatus = await this.checkEndpoint(this.config.apiUrl);
-
-            return {
-              status: endpointStatus === 'reachable' && apiStatus === 'reachable' ? 'operational' : 'degraded',
-              message: `Status page: ${endpointStatus}, API: ${apiStatus}`,
-              incidents: ['Note: Limited status information due to CORS restrictions'],
-            };
-          }
-        })(config);
-    }
+        return {
+          status: endpointStatus === 'reachable' && apiStatus === 'reachable'
+            ? 'operational'
+            : 'degraded',
+          message: `Status page: ${endpointStatus}, API: ${apiStatus}`,
+          incidents: ['Note: Limited status information due to CORS restrictions'],
+        };
+      }
+    })(config);
   }
 
   static getProviderNames(): ProviderName[] {
@@ -143,12 +134,12 @@ export class ProviderStatusCheckerFactory {
   }
 
   static getProviderConfig(provider: ProviderName): ProviderConfig {
+    return this._getProviderConfigOrThrow(provider);
+  }
+
+  private static _getProviderConfigOrThrow(provider: ProviderName): ProviderConfig {
     const config = this._providerConfigs[provider];
-
-    if (!config) {
-      throw new Error(`Unknown provider: ${provider}`);
-    }
-
+    if (!config) throw new Error(`Unknown provider: ${provider}`);
     return config;
   }
 }
